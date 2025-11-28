@@ -5,12 +5,29 @@ LABEL com.github.containers.toolbox="true" \
       summary="A cloud-native terminal experience" \
       maintainer="james@jcwaters.co.uk"
 
+
+# Create build user
+RUN useradd -m --shell=/bin/bash build && usermod -L build && \
+    echo "build ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+
 # Copy the setup scripts and package list
-COPY ../scripts/arch.sh /setup/
+COPY ../scripts/arch-packages.sh /setup/
 COPY ../scripts/distrobox-shims.sh /setup/
 COPY ../packages/arch.packages /setup/
 
+WORKDIR /setup
+RUN chmod +x *.sh
+
+RUN ./distrobox-shims.sh
+
 # Run the setup scripts
-RUN chmod +x /setup/*.sh 
-RUN /setup/arch.sh
-RUN rm -R /setup
+USER build
+RUN ./arch-packages.sh
+
+USER root
+
+# Clean up
+RUN rm -R /setup && \
+    userdel -r build && \
+    sed -i '/build ALL=(ALL) NOPASSWD: ALL/d' /etc/sudoers && \
+    rm -rf /tmp/*
