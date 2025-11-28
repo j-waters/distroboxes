@@ -4,5 +4,5 @@
 ./distrobox-shims.sh
 
 # Update the container and install packages
-dnf update -y
-grep -v '^#' ./fedora-example.packages | xargs dnf install -y
+apk update && apk upgrade
+grep -v '^#' ./boxkit.packages | xargs paru -S --noconfirm
