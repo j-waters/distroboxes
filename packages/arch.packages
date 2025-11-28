@@ -28,3 +28,6 @@ vimdiff
 wl-clipboard
 zellij
 zstd
+
+cosign
+github-cli
