@@ -1,0 +1,16 @@
+FROM quay.io/toolbx-images/arch-toolbox:edge
+
+LABEL com.github.containers.toolbox="true" \
+      usage="This image is meant to be used with the toolbox or distrobox command" \
+      summary="A cloud-native terminal experience" \
+      maintainer="james@jcwaters.co.uk"
+
+# Copy the setup scripts and package list
+COPY ../scripts/arch.sh /setup
+COPY ../scripts/distrobox-shims.sh /setup
+COPY ../packages/arch.packages /setup
+
+# Run the setup scripts
+RUN chmod +x /setup/*.sh 
+RUN /setup/arch.sh
+RUN rm -R /setup
