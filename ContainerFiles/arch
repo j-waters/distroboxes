@@ -6,9 +6,9 @@ LABEL com.github.containers.toolbox="true" \
       maintainer="james@jcwaters.co.uk"
 
 
-# Create build user
-RUN useradd -m --shell=/bin/bash build && usermod -L build && \
-    echo "build ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
+# 2. Create a non-root user named "builder"
+RUN useradd -m builder && \
+    echo "builder ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builder
 
 # Copy the setup scripts and package list
 COPY ../scripts/arch-packages.sh /setup/
@@ -20,14 +20,19 @@ RUN chmod +x *.sh
 
 RUN ./distrobox-shims.sh
 
-# Run the setup scripts
-USER build
+# Run the setup scripts as build user (paru requires non-root)
+USER builder
 RUN ./arch-packages.sh
 
+# Switch back to root for cleanup
 USER root
+WORKDIR /
 
 # Clean up
 RUN rm -R /setup && \
-    userdel -r build && \
-    sed -i '/build ALL=(ALL) NOPASSWD: ALL/d' /etc/sudoers && \
+    userdel -r builder && \
     rm -rf /tmp/*
+
+# 8. Verify cursor is installed and works correctly
+RUN command -v cursor && \
+    cursor --version
