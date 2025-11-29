@@ -5,7 +5,7 @@ LABEL com.github.containers.toolbox="true" \
       summary="A cloud-native terminal experience" \
       maintainer="james@jcwaters.co.uk"
 
-# 2. Create a non-root user named "builder"
+# Create a non-root user named "builder"
 RUN useradd -m builder && \
     echo "builder ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/builder
 
@@ -25,6 +25,8 @@ RUN ./arch-packages.sh
 # Switch back to root for cleanup
 USER root
 WORKDIR /
+
+RUN echo 'en_GB.UTF-8' > /etc/locale.gen
 
 # Clean up
 RUN rm -R /setup && \
